@@ -43,16 +43,19 @@ Other strategies:
     
 '''
 def main():
+    eprint("launching main of game")
     surface_n = int(input())  # the number of points used to draw the surface of Mars.
-
+    eprint("surface_n: " + str(surface_n))
     lx = []
     ly = []
     for i in range(surface_n):
-        # land_x: X coordinate of a surface point. (0 to 6999)
+        # land_x: X co<ordinate of a surface point. (0 to 6999)
         # land_y: Y coordinate of a surface point. By linking all the points together in a sequential fashion, you form the surface of Mars.
         land_x, land_y = [int(j) for j in input().split()]
+        eprint(land_x,land_y)
         lx.append(land_x)
         ly.append(land_y)
+    
     eprint(lx)
     eprint(ly)
     #get the flat land indices(DOES NOT ACCOUNT FOR 3 HORIZONTAL POINTS IN A ROW)
@@ -89,6 +92,7 @@ def main():
     while True:
 
         x, y, vx, vy, fuel, rotate, power = [int(i) for i in input().split()]
+        eprint(x,y,vx,vy,fuel,rotate,power)
         state_curr = State(x,y,vx,vy,fuel,rotate,power)
         state_list_actual.append(state_curr)
         
@@ -174,8 +178,8 @@ def main():
             time_sum += time_stop-time_start
         #When we are done improving, just output the next control in the list
         roundNumber+=1
-        print(control_list[roundNumber][0],control_list[roundNumber][1])
-
+        #print(control_list[roundNumber][0],control_list[roundNumber][1])
+        print(0,0)
 
 
 def eprint(*args,**kwargs):
@@ -313,5 +317,7 @@ def trunc(num,borders):
         return round(num)
 
 if __name__=="__main__":
-    main()
-
+    eprint("calling __name__")
+    #import sys
+    #main()
+    sys.exit(main())
