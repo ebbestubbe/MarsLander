@@ -42,22 +42,23 @@ Other strategies:
 
     
 '''
-def main():
+def main(inputmethod = input, outputmethod = print):
+#def main():
     eprint("launching main of game")
-    surface_n = int(input())  # the number of points used to draw the surface of Mars.
+    surface_n = int(inputmethod())  # the number of points used to draw the surface of Mars.
     eprint("surface_n: " + str(surface_n))
     lx = []
     ly = []
     for i in range(surface_n):
         # land_x: X co<ordinate of a surface point. (0 to 6999)
         # land_y: Y coordinate of a surface point. By linking all the points together in a sequential fashion, you form the surface of Mars.
-        land_x, land_y = [int(j) for j in input().split()]
-        eprint(land_x,land_y)
+        land_x, land_y = [int(j) for j in inputmethod().split()]
+        #eprint(land_x,land_y)
         lx.append(land_x)
         ly.append(land_y)
     
-    eprint(lx)
-    eprint(ly)
+    print("lx: " + str(lx))
+    print("ly: " + str(ly))
     #get the flat land indices(DOES NOT ACCOUNT FOR 3 HORIZONTAL POINTS IN A ROW)
     flat_ind = []
     for i in range(surface_n-1):
@@ -90,13 +91,13 @@ def main():
         control_list.append([angle_rand, thrust_rand])
 
     while True:
-
-        x, y, vx, vy, fuel, rotate, power = [int(i) for i in input().split()]
+        eprint("game requesting first rocket state: ")
+        x, y, vx, vy, fuel, rotate, power = [int(i) for i in inputmethod().split()]
         eprint(x,y,vx,vy,fuel,rotate,power)
         state_curr = State(x,y,vx,vy,fuel,rotate,power)
         state_list_actual.append(state_curr)
         
-            
+        
         height = y - flaty
 
         error_comb_min = 100000000
@@ -126,7 +127,7 @@ def main():
                 k+=1
             #If very close to landing -> 'manual' landing
             if(k<5):
-                print(0,4)
+                outputmethod(0,4)
                 
             end_x = state_list_proj[-2].x
             end_y = state_list_proj[-2].y
@@ -179,7 +180,8 @@ def main():
         #When we are done improving, just output the next control in the list
         roundNumber+=1
         #print(control_list[roundNumber][0],control_list[roundNumber][1])
-        print(0,0)
+        eprint("using outputmethod: ")
+        outputmethod(0,0)
 
 
 def eprint(*args,**kwargs):
