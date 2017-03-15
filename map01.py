@@ -39,21 +39,24 @@ class referee():
     #For the next infinity calls, the output is the rocket state(the while(True): input required)
     def engineinput(self):
         #For the first turn, count up to the number of expected init inputs, and return them
+        if(self._turn> 10):
+            sys.exit()
+        s = codinggame.State(self._rocketstate[0],self._rocketstate[1],self._rocketstate[2],self._rocketstate[3],self._rocketstate[4],self._rocketstate[5],self._rocketstate[6])
+        if(codinggame.checkvalidstate(s))
         if(self._counter_init_input < self._n_init_input):
             codinggame.eprint("sending info number: " + str(self._counter_init_input))
             self._counter_init_input += 1
             return self._lvl[self._counter_init_input-1]
         else:
             self._turn += 1
-            x,y,vx,vy,fuel,rotate,power = [int(j) for j in self._rocketstate.split()]
+            x,y,vx,vy,fuel,rotate,power = [int(float(j)) for j in self._rocketstate.split()]
             inputstring = str(int(x)) + " " + str(int(y)) + " " + str(int(vx)) + " " + str(int(vy)) + " " + str(int(fuel)) + " " + str(int(rotate)) + " " + str(int(power)) 
             return inputstring
- 
     
     def engineoutput(self,angle,thrust):
         #remember to split it into ints, and not just output the long string
         #codinggame.eprint(self._rocketstate)
-        x,y,vx,vy,fuel,rotate,power = [int(j) for j in self._rocketstate.split()]
+        x,y,vx,vy,fuel,rotate,power = [int(float(j)) for j in self._rocketstate.split()]
         #y = int(self._rocketstate[1])
         #vx = int(self._rocketstate[2])
         #vy = int(self._rocketstate[3])

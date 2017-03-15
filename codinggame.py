@@ -44,9 +44,7 @@ Other strategies:
 '''
 def main(inputmethod = input, outputmethod = print):
 #def main():
-    eprint("launching main of game")
     surface_n = int(inputmethod())  # the number of points used to draw the surface of Mars.
-    eprint("surface_n: " + str(surface_n))
     lx = []
     ly = []
     for i in range(surface_n):
@@ -323,3 +321,49 @@ if __name__=="__main__":
     #import sys
     #main()
     sys.exit(main())
+
+'''
+General documentation for the problem:
+    States 's' currently encoded as a named tuple State(x,y,vx,vy,fuel,rotate,power)
+    Controls 'u' an array [desired_angle, desired_thrust]
+    
+    Turn propagation goes like this:
+        clamp rotation to be within 15 degrees of previous turn
+        clamp shippower to be within -1/+1 of previous turn
+        
+        set acceleration,velocity and position:
+            constant acceleration in y-direction from gravity.
+            accelerations are directly added to this turns velocity.
+            positions are averages of this turn and previous turns velocities
+            
+            ax = -s1power*math.sin(s1rotate*math.pi/180)
+            ay = s1power*math.cos(s1rotate*math.pi/180) - 3.711
+    
+            s1vx = s0.vx + ax
+            s1vy = s0.vy + ay
+    
+            s1x = s0.x + (s1vx + s0.vx)/2
+            s1y = s0.y + (s1vy + s0.vy)/2
+    
+
+    The internal states are floating point numbers, but the values from input() are rounded to integers
+    
+    
+    If we want to propagate from turn 'n' with constant acceleration:
+        The running variable 'i' denotes the absolute turn number, 'i-n' is then the number of turns from 'n':
+        by insertion we can find the velocity and position at state 'i'
+        ax = cst
+        
+        vx_n = vx_{n-1} + ax
+        vx_{n+1} = vx_n + ax = vx_{n-1} + 2*ax
+        vx_{n+2} = vx_{n+1} + ax = vx_{n-1} + 3*ax
+        ...
+        vx_i = vx_{n-1} + (i-n+1)*ax
+        
+        x_n = x_{n-1} + (x_n + x_{n-1})/2
+        x_{n+1} = x_n + (x_{n+1} + x_n)/2
+        x_{n+2} = x_{n+1} + (x_{n+2} + x_{n+1})/2
+        ...
+        x_i = x_{n-1} + (i-n+1)*vx_{n-1} + (i-n+1)^2 * ax/2
+        
+'''
