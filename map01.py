@@ -10,6 +10,8 @@ from time import sleep
 import io
 import numpy as np
 
+
+
 class referee():
     def __init__(self,level):
         self._turn = 0 #The turn number for the current turn, changes each call in the game
@@ -53,11 +55,12 @@ class referee():
             return state_to_string(self._rocketstate)
     
     def engineoutput(self,angle,thrust):
-        #codinggame.eprint(self._rocketstate)
         
         newstate = codinggame.state_propagate_forward(self._rocketstate,[angle,thrust])
         self._rocketstate = newstate
         valid = codinggame.checkvalidstate(newstate,self._lx,self._ly)
+        if(valid!=True):
+            sys.exit()
         
 #Takes a bunch of ints, load them into a gamestate
 def string_to_state(string):
@@ -74,8 +77,17 @@ def state_to_string(s):
     string = ' '.join(string)
     #codinggame.eprint(string)
     return string
-    
+def randomcontrol():
+    s = 300
+    a = np.random.randint(-90,91,size = s)
+    t = np.random.randint(0,5,size = s)
+    print(list(a))
+    print(list(t))
+    return
 if __name__ == "__main__":
+    '''
+    randomcontrol()
+    '''
     level01 = ["7",
            "0 100",
            "1000 500",
@@ -85,6 +97,20 @@ if __name__ == "__main__":
            "5500 150",
            "6999 800",
            "2500 2700 0 0 550 0 0"]
+    level02 = ["10",
+               "0 100",
+               "1000 500",
+               "1500 100",
+               "3000 100",
+               "3500 500",
+               "3700 200",
+               "5000 1500",
+               "5800 300",
+               "6000 1000",
+               "6999 2000",
+               "6500 2800 -100 0 600 90 0"]
     
-    ref = referee(level01)
+    
+    ref = referee(level02)
     ref.play()
+    
