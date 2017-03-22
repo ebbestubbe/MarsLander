@@ -44,9 +44,7 @@ Other strategies:
 '''
 def main(inputmethod = input, outputmethod = print):
 #def main():
-    eprint("launching main of game")
     surface_n = int(inputmethod())  # the number of points used to draw the surface of Mars.
-    eprint("surface_n: " + str(surface_n))
     lx = []
     ly = []
     for i in range(surface_n):
