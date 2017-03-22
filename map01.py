@@ -33,10 +33,9 @@ class referee():
     #For the next infinity calls, the output is the rocket state(the while(True): input required)
     def engineinput(self):
         #For the first turn, count up to the number of expected init inputs, and return them
-        if(self._turn> 10):
-            sys.exit()
-        s = codinggame.State(self._rocketstate[0],self._rocketstate[1],self._rocketstate[2],self._rocketstate[3],self._rocketstate[4],self._rocketstate[5],self._rocketstate[6])
-        if(codinggame.checkvalidstate(s))
+        #if(self._turn> 10):
+        #    sys.exit()
+        #s = codinggame.State(self._rocketstate[0],self._rocketstate[1],self._rocketstate[2],self._rocketstate[3],self._rocketstate[4],self._rocketstate[5],self._rocketstate[6])
         if(self._counter_init_input < self._n_init_input):
             codinggame.eprint("sending info number: " + str(self._counter_init_input))
             #load the land data for checking state validity
