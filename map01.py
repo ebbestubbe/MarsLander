@@ -60,6 +60,8 @@ class referee():
         self._rocketstate = newstate
         valid = codinggame.checkvalidstate(newstate,self._lx,self._ly)
         if(valid!=True):
+            codinggame.eprint("crashed: in state:")
+            codinggame.eprint(str(self._rocketstate))
             sys.exit()
         
 #Takes a bunch of ints, load them into a gamestate
