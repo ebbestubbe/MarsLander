@@ -113,6 +113,6 @@ if __name__ == "__main__":
                "6500 2800 -100 0 600 90 0"]
     
     
-    ref = referee(level02)
+    ref = referee(level01)
     ref.play()
     

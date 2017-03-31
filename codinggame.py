@@ -30,9 +30,6 @@ Improvements:
     
     Some states are obviously better, i.e. all errors are improved -> automatically choose those
 
-Maybe even print and plot some outputs to get better understanding
-
-
 Other strategies:
     Krotov-like - > requires (correct!) backprop algorithm
     
@@ -40,7 +37,15 @@ Other strategies:
         Simple enough scheme to propagate by integration instead of explicitly propagating
         Low dimensional enough to use some sort of optimizer?
 
-    
+General concerns:
+    If the outputmethod(in codinggame: print) is called, should the code continue or stop abruptly and go to the referee script?
+        It seems like my own engine continues the script normally, but I think it should break off.
+
+To do
+    Figure out if the final state is succesful or not
+        Would be able to plot number of successes vs failure over many runs for different strategies
+    Plot thrust/angle, and the actual values
+    Plot error values
 '''
 def main(inputmethod = input, outputmethod = print):
     a = [-72, 36, 76, -44, 77, -33, 78, 15, 26, 87, 14, -64, -41, -33, -78, 87, -37, 37, -90, -41, 30, 0, 45, 6, -45, 10, 54, -80, -66, -18, 13, 20, 30, -43, 25, -62, -13, -47, 76, -83, 73, -46, -50, -80, 74, -51, -62, 81, -67, 56, -60, 10, -33, -12, 63, 48, 2, 31, -8, -31, 81, -3, -47, -28, 43, -2, 16, -19, 63, 9, 17, 34, -66, 26, 2, 14, -49, -23, -58, 61, 53, -30, 83, -18, -25, 59, -10, -38, 61, -66, 38, 20, -54, -56, 75, 80, 89, 29, -52, 31, 6, 42, -3, 42, -28, -22, -70, 73, 67, -90, 90, 57, 59, 78, -70, 75, 71, 35, 42, 71, 23, 3, -75, 17, -84, 8, 74, -53, 72, 53, -8, 62, -16, -77, -19, 45, 16, -82, -22, -89, -1, -26, 31, -14, -25, -69, 66, -88, 18, 33, -34, -25, -3, -6, 49, 90, 49, 52, -90, -35, -7, 57, 24, -3, -2, -88, -36, 0, -78, -2, 44, 24, -5, -82, 66, -30, -68, 17, 74, -57, 71, 20, -38, 70, -43, -87, -39, 77, 8, 13, 7, 46, 85, -70, -13, -76, 49, -71, -67, 0, 83, -7, 72, 64, 77, -37, -83, -29, 32, 42, 28, 47, 18, -15, -16, 8, -60, 38, 72, 25, -67, 88, -18, 19, 36, 2, 39, 4, -16, -10, -84, -65, -35, -46, 57, -77, 25, 31, 21, -14, -33, 73, -37, -88, 53, 65, 39, 33, 5, -23, -24, 8, -53, 64, 87, 11, 82, 66, 9, -1, 48, 36, 10, 19, 7, 24, 12, -15, -49, 73, -46, 33, -41, 48, 39, -6, -28, 4, -36, -88, -16, 70, 86, -79, 34, 75, -52, 79, 23, -76, -48, 27, -50, 58, 48, -8, -60, -36, 60, -83]
@@ -71,7 +76,7 @@ def main(inputmethod = input, outputmethod = print):
     
     x_mid = x0 +(x1-x0)/2
     flaty = ly[flat_ind[0][0]]
-    
+    '''
     roundNumber = 0
 
     while True:
@@ -84,7 +89,116 @@ def main(inputmethod = input, outputmethod = print):
         eprint("using outputmethod: ")
         outputmethod(a[roundNumber-1],t[roundNumber-1])
 
+    '''
+    state_list_actual = []
+    roundNumber = 0
+    
 
+    
+    #Make a list of random commands
+    control_list = []
+    for i in range(300):
+        #angle_rand = rnd.randrange(-90,91)
+        #thrust_rand = rnd.randrange(0,5)
+        angle_rand = 0
+        thrust_rand = 3 + rnd.randrange(0,2)
+        control_list.append([angle_rand, thrust_rand])
+
+    while True:
+        #eprint("game requesting rocket state, roundnumber=" + str(roundNumber))
+        x, y, vx, vy, fuel, rotate, power = [int(i) for i in inputmethod().split()]
+        #eprint(x,y,vx,vy,fuel,rotate,power)
+        state_curr = State(x,y,vx,vy,fuel,rotate,power)
+        state_list_actual.append(state_curr)
+        
+        #height = y - flaty UNUSED
+
+        error_comb_min = 100000000 #initial error
+        time_sum = 0
+        time_max = 0.14
+        
+        #Keep optimizing while we still have time
+        while(time_sum < time_max):
+            time_start = timeit.default_timer()
+            
+            #The absolute index of the perturbed control:
+            to_perturb = rnd.randrange(roundNumber,roundNumber+30)
+            
+            #The perturbed control is just taken at random, regardless of thrust/angle restrictions
+            control_perturb = [rnd.randrange(-90,91),rnd.randrange(0,5)]
+            
+            #Make a list of the future states in 'state_list_proj', keep iterating until the last one is no longer valid
+            state_new = state_propagate_forward(state_curr,control_list[roundNumber])
+            state_list_proj = [state_new]
+            k=1
+            while(checkvalidstate(state_list_proj[k-1],lx,ly)):
+                if(roundNumber+k == to_perturb):
+                    state_new = state_propagate_forward(state_list_proj[k-1],control_perturb)
+                else:
+                    state_new = state_propagate_forward(state_list_proj[k-1],control_list[roundNumber+k])
+                state_list_proj.append(state_new)
+                k+=1
+            #If very close to landing -> 'manual' landing
+            if(k<5):
+                outputmethod(0,4)
+
+            error_comb = evaluate_error(state_curr,state_list_proj[-2],x0,x1,x_mid,flaty)
+
+            #If the new error is better, use the new 'solution'
+            if(error_comb < error_comb_min):
+  
+                error_comb_min = error_comb
+                control_list[to_perturb] = control_perturb
+            
+            time_stop = timeit.default_timer()
+            time_sum += time_stop-time_start
+        #When we are done improving, just output the next control in the list
+        roundNumber+=1
+        #print(control_list[roundNumber][0],control_list[roundNumber][1])
+        eprint("using outputmethod: ")
+        #outputmethod(0,0)
+        outputmethod(control_list[roundNumber][0],control_list[roundNumber][1])
+
+#Evaluates and returns the error between 2 states 's1','s2'.
+#Requires the leftmost flat point 'x0', the rightmost flat point 'x1', and the height of landing spot 'flaty'
+def evaluate_error(s1,s2,x0,x1,x_mid,flaty):
+
+    error_x = math.sqrt((s2.x - x_mid)**2)
+    
+    if(s1.x > x0 and s1.x < x1): #If the current state is outside the flat area, make the x-error smaller/less important
+        error_x *= 0.2
+    
+    error_y = math.sqrt((s2.y - flaty)**2)
+    
+
+    vx_sp = 15 #vx_setpoint
+    if(abs(s2.vx) > vx_sp): #If the projected speed is higher than the set point, set the eror in vx
+        error_vx = math.sqrt((abs(s2.vx) - vx_sp)**2)
+    else:
+        error_vx = 0
+        
+    vy_sp = -20
+    if(s2.vy < vy_sp):#If the projected speed is higher than the set point, set the eror in vy
+        error_vy = math.sqrt((s2.vy - vy_sp)**2)
+    else:
+        error_vy = 0
+        
+    #Fudge factors
+    error_x*=1
+    error_y*=0.1
+    error_vx*=15
+    error_vy*=20
+    
+    error_comb = error_x + error_y + error_vx + error_vy
+    #eprint("\n")
+    #eprint(control_perturb)
+    #eprint("end_x: " + str(end_x) + "; error_x:     " + str(error_x))
+    #eprint("end_y: " + str(end_y) + "; error_y:     " + str(error_y))
+    #eprint("end_vx: " + str(end_vx) + "; error_vx:  " + str(error_vx))
+    #eprint("end_vy: " + str(end_vy) + "; error_vy:  " + str(error_vy))
+    #eprint("error_comb:                             " + str(error_comb))
+
+    return error_comb
 def eprint(*args,**kwargs):
     print(*args, file=sys.stderr, **kwargs)
 
